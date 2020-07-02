@@ -382,6 +382,8 @@ architecture RTL of top is
 
     alias serdes_reset : std_logic is reg_oreg(11)(8);
 
+    alias count_enable : std_logic is reg_oreg(11)(9);
+
     alias wbuf_enable : std_logic_vector (3 downto 0)
 	is reg_oreg(11)(15 downto 12);
 
@@ -1262,7 +1264,7 @@ begin
 
     lvds_pll_inst : entity work.lvds_pll (RTL_250MHZ)
 	port map (
-	    ref_clk_in => cmv_outclk,
+	    ref_clk_in => cmv_lvds_clk,
 	    --
 	    pll_locked => lvds_pll_locked,
 	    --
@@ -1366,7 +1368,9 @@ begin
 	generic map (
 	    REG_SPLIT => REG_SPLIT,
 	    OREG_SIZE => OREG_SIZE,
-	    IREG_SIZE => IREG_SIZE )
+	    IREG_SIZE => IREG_SIZE,
+	    INITIAL =>
+		(11 => x"00000031", others => (others => '0')) )
 	port map (
 	    s_axi_aclk => m_axi0a_aclk(1),
 	    s_axi_areset_n => m_axi0a_areset_n(1),
@@ -1413,7 +1417,7 @@ begin
     -- Delay Register File
     --------------------------------------------------------------------
 
-    reg_delay_inst : entity work.reg_delay
+    /* reg_delay_inst : entity work.reg_delay
 	generic map (
 	    REG_BASE => 16#60000000#,
 	    CHANNELS => CHANNELS + 2 )
@@ -1433,7 +1437,7 @@ begin
 	    --
 	    match => par_match,			-- in
 	    mismatch => par_mismatch,		-- in
-	    bitslip => serdes_bitslip );	-- out
+	    bitslip => serdes_bitslip );	-- out */
 
     --------------------------------------------------------------------
     -- BRAM LUT Register File (Linearization)
@@ -1540,12 +1544,12 @@ begin
     end generate;
 
 --  idelay_in <= idelay_in_p;
-    idelay_in(17 downto 0) <= idelay_in_p(17 downto 0);
+    /* idelay_in(17 downto 0) <= idelay_in_p(17 downto 0);
     idelay_in(18) <= idelay_in_n(18);
     idelay_in(CHANNELS downto 19) <= idelay_in_p(CHANNELS downto 19);
     idelay_in(CHANNELS + 1) <= idelay_in_n(CHANNELS + 1);
 
-    cmv_outclk <= not idelay_out(CHANNELS + 1);
+    cmv_outclk <= not idelay_out(CHANNELS + 1); */
 
     ser_to_par_inst : entity work.ser_to_par
 	generic map (
@@ -1555,6 +1559,7 @@ begin
 	    serdes_clkdiv => serdes_clkdiv,	-- in
 	    serdes_phase  => serdes_phase,	-- in
 	    serdes_rst	  => serdes_reset,	-- in
+	    count_enable  => count_enable,	-- in
 	    --
 	    ser_data	  => idelay_out(CHANNELS downto 0),
 	    --
@@ -1570,9 +1575,9 @@ begin
 	serdes_phase <= phase_v;
 
 	if rising_edge(serdes_clkdiv) then
-	    if serdes_bitslip(CHANNELS + 1) = '0' then
-		phase_v := not phase_v;
-	    end if;
+	    -- if serdes_bitslip(CHANNELS + 1) = '0' then
+	    phase_v := not phase_v;
+	    -- end if;
 	end if;
     end process;
 
