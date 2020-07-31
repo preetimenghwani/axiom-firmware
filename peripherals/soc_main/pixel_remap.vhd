@@ -104,7 +104,9 @@ entity pixel_remap is
 	par_din	   : in	 par12_a (NB_LANES-1 downto 0);
 
 	ctrl_out   : out std_logic_vector (12 - 1 downto 0);
-	par_dout   : out par12_a (NB_LANES-1 downto 0) );
+	par_dout   : out par12_a (NB_LANES-1 downto 0);
+	row_reordering  : out unsigned(0 downto 0) := (others => '0') );
+
 end entity;
 
 
@@ -205,7 +207,10 @@ architecture RTL of pixel_remap is
     signal dval_delay	: std_logic_vector(2 downto 0);
 
     --
+    signal lval_count    : unsigned(0 downto 0) := (others => '0');
+    signal lval_out_prev : std_logic := '0';
 
+    --
     alias fval_in	: std_logic is ctrl_in(2);
     alias lval_in	: std_logic is ctrl_in(1);
     alias dval_in	: std_logic is ctrl_in(0);
@@ -637,6 +642,29 @@ begin
 
     -- at the moment others information of control channel are not transmitted
     ctrl_out(ctrl_out'high downto 3) <= (others => '0');
+
+    -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    -- reordering of channels for y subsampling according to the value of
+    -- row reordering
+
+    row_reordering <= lval_count;
+
+    process(clk)
+    begin
+	if rising_edge(clk) then
+	    if fval_delay(fval_delay'high) = '0' then
+		lval_count <= "0";
+		lval_out_prev <= '0';
+
+	    else
+		lval_out_prev <= lval_delay(lval_delay'high);
+		if lval_out_prev = '1' and lval_delay(lval_delay'high) = '0' then
+		    lval_count <= not lval_count;
+
+		end if;
+	    end if;
+	end if;
+    end process;
 
     -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

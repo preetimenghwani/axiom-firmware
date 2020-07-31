@@ -330,6 +330,7 @@ architecture RTL of top is
     signal remap_data : par12_a (CHANNELS - 1 downto 0);
 
     signal chop_enable : std_logic;
+    signal row_reordering : unsigned(0 downto 0) := (others => '0');
 
     --------------------------------------------------------------------
     -- CMV Register File Signals
@@ -1726,7 +1727,9 @@ begin
 	    par_din  => par_data_e(15 downto 0),
 	    --
 	    ctrl_out => map_ctrl,
-	    par_dout => map_data(15 downto 0) );
+	    par_dout => map_data(15 downto 0),
+	    --
+	    row_reordering => row_reordering );
 
     pixel_remap_odd_inst : entity work.pixel_remap
 	  generic map (
@@ -1739,7 +1742,9 @@ begin
 	    par_din  => par_data_o(31 downto 16),
 	    --
 	    ctrl_out => open,
-	    par_dout => map_data(31 downto 16) );
+	    par_dout => map_data(31 downto 16),
+	    --
+	    row_reordering => open );
 
     valid_proc : process (serdes_clkdiv)
     begin
@@ -1756,23 +1761,44 @@ begin
     begin
 	if rising_edge(serdes_clkdiv) then
 	    remap_ctrl <= map_ctrl;
-	    remap_data <=
-		map_data(30 downto 30) & map_data(31 downto 31) &
-		map_data(14 downto 14) & map_data(15 downto 15) &
-		map_data(28 downto 28) & map_data(29 downto 29) &
-		map_data(12 downto 12) & map_data(13 downto 13) &
-		map_data(26 downto 26) & map_data(27 downto 27) &
-		map_data(10 downto 10) & map_data(11 downto 11) &
-		map_data(24 downto 24) & map_data(25 downto 25) &
-		map_data( 8 downto  8) & map_data( 9 downto  9) &
-		map_data(22 downto 22) & map_data(23 downto 23) &
-		map_data( 6 downto  6) & map_data( 7 downto  7) &
-		map_data(20 downto 20) & map_data(21 downto 21) &
-		map_data( 4 downto  4) & map_data( 5 downto  5) &
-		map_data(18 downto 18) & map_data(19 downto 19) &
-		map_data( 2 downto  2) & map_data( 3 downto  3) &
-		map_data(16 downto 16) & map_data(17 downto 17) &
-		map_data( 0 downto  0) & map_data( 1 downto  1);
+	    if row_reordering = 0 then
+		remap_data <=
+		    map_data(30 downto 30) & map_data(31 downto 31) &
+		    map_data(14 downto 14) & map_data(15 downto 15) &
+		    map_data(28 downto 28) & map_data(29 downto 29) &
+		    map_data(12 downto 12) & map_data(13 downto 13) &
+		    map_data(26 downto 26) & map_data(27 downto 27) &
+		    map_data(10 downto 10) & map_data(11 downto 11) &
+		    map_data(24 downto 24) & map_data(25 downto 25) &
+		    map_data( 8 downto  8) & map_data( 9 downto  9) &
+		    map_data(22 downto 22) & map_data(23 downto 23) &
+		    map_data( 6 downto  6) & map_data( 7 downto  7) &
+		    map_data(20 downto 20) & map_data(21 downto 21) &
+		    map_data( 4 downto  4) & map_data( 5 downto  5) &
+		    map_data(18 downto 18) & map_data(19 downto 19) &
+		    map_data( 2 downto  2) & map_data( 3 downto  3) &
+		    map_data(16 downto 16) & map_data(17 downto 17) &
+		    map_data( 0 downto  0) & map_data( 1 downto  1);
+
+	    else
+		remap_data <=
+		    map_data(30 downto 30) & map_data(31 downto 31) &
+		    map_data(14 downto 14) & map_data(15 downto 15) &
+		    map_data(28 downto 28) & map_data(29 downto 29) &
+		    map_data(12 downto 12) & map_data(13 downto 13) &
+		    map_data(26 downto 26) & map_data(27 downto 27) &
+		    map_data(10 downto 10) & map_data(11 downto 11) &
+		    map_data(24 downto 24) & map_data(25 downto 25) &
+		    map_data( 8 downto  8) & map_data( 9 downto  9) &
+		    map_data(22 downto 22) & map_data(23 downto 23) &
+		    map_data( 6 downto  6) & map_data( 7 downto  7) &
+		    map_data(20 downto 20) & map_data(21 downto 21) &
+		    map_data( 4 downto  4) & map_data( 5 downto  5) &
+		    map_data(18 downto 18) & map_data(19 downto 19) &
+		    map_data( 2 downto  2) & map_data( 3 downto  3) &
+		    map_data(16 downto 16) & map_data(17 downto 17) &
+		    map_data( 0 downto  0) & map_data( 1 downto  1);
+	    end if;
 	end if;
     end process;
 
