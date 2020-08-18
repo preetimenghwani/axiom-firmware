@@ -1368,7 +1368,7 @@ begin
 	    OREG_SIZE => OREG_SIZE,
 	    IREG_SIZE => IREG_SIZE,
 	    INITIAL =>
-		(11 => x"00000031", others => (others => '0')) )
+		(11 => x"00000131", others => (others => '0')) )
 	port map (
 	    s_axi_aclk => m_axi0a_aclk(1),
 	    s_axi_areset_n => m_axi0a_areset_n(1),
@@ -2500,7 +2500,9 @@ begin
 	generic map (
 	    REG_SPLIT => GEN_SPLIT,
 	    OREG_SIZE => OGEN_SIZE,
-	    IREG_SIZE => IGEN_SIZE )
+	    IREG_SIZE => IGEN_SIZE,
+	    INITIAL =>
+		(11 => x"00000321", others => (others => '0')) )
 	port map (
 	    s_axi_aclk => m_axi1a_aclk(1),
 	    s_axi_areset_n => m_axi1a_areset_n(1),
