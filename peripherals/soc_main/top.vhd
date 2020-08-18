@@ -2503,7 +2503,7 @@ begin
 	    OREG_SIZE => OGEN_SIZE,
 	    IREG_SIZE => IGEN_SIZE,
 	    INITIAL =>
-		(11 => x"00000321",        -- all stopped/reset 
+		(11 => x"00000321",        -- all stopped/reset
 		others => (others => '0')) )
 	port map (
 	    s_axi_aclk => m_axi1a_aclk(1),
