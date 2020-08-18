@@ -49,8 +49,8 @@ entity reg_file is
     generic (
 	REG_SPLIT : natural := 4;
 	OREG_SIZE : natural := 8;
-        IREG_SIZE : natural := 8;
-        INITIAL   : reg32_a(0 to OREG_SIZE - 1)
+	IREG_SIZE : natural := 8;
+	INITIAL   : reg32_a(0 to OREG_SIZE - 1)
 	:= (others => (others => '0'))
     );
     port (
